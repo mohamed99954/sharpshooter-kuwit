@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تجربة تسجيل دخول</title>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+</head>
+<body>
+
+  <h2>تسجيل الدخول</h2>
+  <input type="email" id="email" placeholder="البريد الإلكتروني"><br>
+  <input type="password" id="password" placeholder="كلمة المرور"><br>
+  <button onclick="login()">دخول</button>
+
+  <p id="msg"></p>
+
+  <script>
+    const supabase = supabase.createClient(
+      'https://cscruajtgsyartddfuhu.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzY3J1YWp0Z3N5YXJ0ZGRmdWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NDIwNzQsImV4cCI6MjA2ODQxODA3NH0.dM06HDS5mdeaYhcZE7R-tL91C_pXqlBT-CcOZ_axh24'
+    );
+
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const msg = document.getElementById('msg');
+
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        msg.textContent = '❌ فشل تسجيل الدخول';
+      } else {
+        msg.textContent = '✅ تسجيل ناجح';
+      }
+    }
+  </script>
+
+</body>
+</html>

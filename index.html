@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>شارب شوتر الكويت</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+</head>
+<body class="bg-gray-100 text-right">
+
+  <!-- ✅ رأس الصفحة -->
+  <header class="bg-black text-white py-6 shadow mb-6">
+  <div class="max-w-4xl mx-auto text-center space-y-3">
+    <h1 class="text-xl sm:text-2xl font-semibold tracking-wider">
+       شارب شوتر الكويت 
+    </h1>
+    <p class="text-sm text-gray-300">
+       نوفر جميع خدمات الألعاب وملحقاتها 
+    </p>
+    <div class="flex flex-wrap justify-center gap-4 mt-4">
+      <a href="#" class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-black transition">
+         الموقع الرسمي
+      </a>
+      <a href="#" class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-black transition">
+         تيليغرام
+      </a>
+      <a href="#" class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-black transition">
+        الدعم
+      </a>
+    </div>
+  </div>
+</header>
+
+  <!-- ✅ المنشورات -->
+  <main class="max-w-6xl mx-auto px-4">
+    
+    <div id="cards" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+    <p id="noPosts" class="text-center text-gray-500 mt-4 hidden">لا توجد منشورات حالياً</p>
+  </main>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://cscruajtgsyartddfuhu.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzY3J1YWp0Z3N5YXJ0ZGRmdWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NDIwNzQsImV4cCI6MjA2ODQxODA3NH0.dM06HDS5mdeaYhcZE7R-tL91C_pXqlBT-CcOZ_axh24'
+    );
+
+    const cardsContainer = document.getElementById('cards');
+    const noPosts = document.getElementById('noPosts');
+
+    async function fetchPosts() {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('خطأ في جلب المنشورات:', error.message);
+        noPosts.classList.remove('hidden');
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        noPosts.classList.remove('hidden');
+        return;
+      }
+
+     data.forEach(post => {
+  const card = document.createElement('div');
+  card.className = 'bg-white p-4 rounded shadow space-y-3';
+
+  if (post.video_url) {
+    const video = document.createElement('video');
+    video.src = post.video_url;
+    video.controls = true;
+    video.className = 'w-full rounded';
+    card.appendChild(video);
+  }
+
+  if (post.image_url) {
+    const img = document.createElement('img');
+    img.src = post.image_url;
+    img.alt = 'صورة الحساب';
+    img.className = 'w-full rounded';
+    card.appendChild(img);
+  }
+
+  const desc = document.createElement('p');
+  desc.className = 'text-sm text-gray-800 whitespace-pre-line leading-relaxed break-words text-right';
+  desc.innerHTML = post.description.replace(/\n/g, '<br>');
+  card.appendChild(desc);
+
+  // ✅ أيقونات واتساب وتيليغرام
+  const contactDiv = document.createElement('div');
+contactDiv.className = 'flex justify-center gap-4 mt-4';
+  const whatsappLink = document.createElement('a');
+  whatsappLink.href = 'https://wa.me/965XXXXXXXX'; // ✅ استبدل بالرقم الصحيح
+  whatsappLink.target = '_blank';
+  whatsappLink.innerHTML = '<img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png" class="w-6 h-6" alt="واتساب"/>';
+
+  const telegramLink = document.createElement('a');
+  telegramLink.href = 'https://t.me/YourTelegramUsername'; // ✅ استبدل بالمعرف الصحيح
+  telegramLink.target = '_blank';
+  telegramLink.innerHTML = '<img src="https://img.icons8.com/color/48/000000/telegram-app--v1.png" class="w-6 h-6" alt="تيليغرام"/>';
+
+  contactDiv.appendChild(whatsappLink);
+  contactDiv.appendChild(telegramLink);
+  card.appendChild(contactDiv);
+
+  cardsContainer.appendChild(card);
+});
+    }
+
+    fetchPosts();
+  </script>
+</body>
+</html>

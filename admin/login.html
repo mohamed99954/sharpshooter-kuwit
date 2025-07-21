@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>تسجيل دخول الأدمن</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-sm">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">تسجيل دخول الأدمن</h2>
+    
+    <div class="mb-4">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="email">البريد الإلكتروني</label>
+      <input id="email" type="email" placeholder="admin@example.com"
+             class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    </div>
+
+    <div class="mb-6">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="password">كلمة المرور</label>
+      <input id="password" type="password"
+             class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    </div>
+
+    <button onclick="login()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
+      تسجيل الدخول
+    </button>
+
+    <p id="message" class="mt-4 text-center text-sm font-semibold"></p>
+  </div>
+
+  <!-- ✅ تحميل مكتبة supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+
+  <!-- ✅ كود الاتصال وتسجيل الدخول -->
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://cscruajtgsyartddfuhu.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzY3J1YWp0Z3N5YXJ0ZGRmdWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NDIwNzQsImV4cCI6MjA2ODQxODA3NH0.dM06HDS5mdeaYhcZE7R-tL91C_pXqlBT-CcOZ_axh24'
+    );
+
+    async function login() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const message = document.getElementById('message');
+
+      if (!email || !password) {
+        message.textContent = "⚠ الرجاء إدخال البريد وكلمة المرور.";
+        message.className = "text-center text-yellow-600 font-semibold mt-4";
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        message.textContent = "❌ بيانات الدخول غير صحيحة.";
+        message.className = "text-center text-red-600 font-semibold mt-4";
+      } else {
+        message.textContent = "✅ تم تسجيل الدخول بنجاح...";
+        message.className = "text-center text-green-600 font-semibold mt-4";
+
+        // حفظ الجلسة (اختياري)
+        localStorage.setItem('admin', JSON.stringify(data.user));
+
+        // التوجيه للوحة التحكم بعد لحظات
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1000);
+      }
+    }
+  </script>
+
+</body>
+</html>

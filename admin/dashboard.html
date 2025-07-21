@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لوحة تحكم الأدمن</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+
+  <div class="max-w-3xl mx-auto bg-white shadow-md rounded p-6 space-y-6">
+    <div class="flex justify-between items-center">
+      <h2 class="text-xl font-bold text-gray-800">
+        🎮 لوحة تحكم الأدمن | مرحبًا، <span id="adminEmail" class="text-blue-600"></span>
+      </h2>
+      <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded">
+        تسجيل الخروج
+      </button>
+    </div>
+
+    <!-- نموذج النشر -->
+    <div class="space-y-4">
+      <input type="file" id="imageFile" accept="image/*" class="w-full border p-2 rounded" />
+      <input type="file" id="videoFile" accept="video/*" class="w-full border p-2 rounded" />
+      <textarea id="description" rows="4" placeholder="الوصف..." class="w-full border p-2 rounded"></textarea>
+      <p id="uploadProgress" class="text-sm text-blue-600 hidden"></p>
+      <button id="uploadBtn" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+        ✅ نشر الحساب
+      </button>
+    </div>
+
+    <!-- المنشورات -->
+    <div>
+      <h3 class="text-lg font-semibold mt-6">📝 المنشورات الحالية</h3>
+      <div id="posts" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"></div>
+    </div>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://cscruajtgsyartddfuhu.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzY3J1YWp0Z3N5YXJ0ZGRmdWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NDIwNzQsImV4cCI6MjA2ODQxODA3NH0.dM06HDS5mdeaYhcZE7R-tL91C_pXqlBT-CcOZ_axh24'
+    );
+
+    const adminEmailSpan = document.getElementById('adminEmail');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressText = document.getElementById('uploadProgress');
+    const postsContainer = document.getElementById('posts');
+
+    let session = null;
+
+    async function checkAuth() {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) return window.location.href = 'login.html';
+      session = data.session;
+      adminEmailSpan.textContent = session.user.email;
+      fetchPosts();
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      localStorage.removeItem('admin');
+      window.location.href = 'login.html';
+    }
+
+    async function fetchPosts() {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) return console.error(error);
+      renderPosts(data);
+    }
+
+    function renderPosts(posts) {
+      postsContainer.innerHTML = '';
+      posts.forEach(post => {
+        const div = document.createElement('div');
+        div.className = 'bg-gray-50 p-4 rounded shadow space-y-2';
+
+        if (post.video_url) {
+          const video = document.createElement('video');
+          video.src = post.video_url;
+          video.controls = true;
+          video.className = 'w-full rounded';
+          div.appendChild(video);
+        }
+
+        if (post.image_url) {
+          const img = document.createElement('img');
+          img.src = post.image_url;
+          img.className = 'w-full rounded';
+          div.appendChild(img);
+        }
+
+        const p = document.createElement('p');
+        p.innerHTML = post.description.replace(/\n/g, '<br>');
+        p.className = 'text-gray-800 break-words';
+        div.appendChild(p);
+
+        const actions = document.createElement('div');
+        actions.className = 'flex gap-2';
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏ تعديل';
+        editBtn.className = 'bg-yellow-500 text-white px-3 py-1 rounded';
+        editBtn.onclick = () => editPost(post.id, post.description);
+        actions.appendChild(editBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '🗑 حذف';
+        delBtn.className = 'bg-red-600 text-white px-3 py-1 rounded';
+        delBtn.onclick = () => deletePost(post.id);
+        actions.appendChild(delBtn);
+
+        div.appendChild(actions);
+        postsContainer.appendChild(div);
+      });
+    }
+
+    async function editPost(id, currentDesc) {
+      const newDesc = prompt('أدخل وصفًا جديدًا:', currentDesc);
+      if (!newDesc || newDesc === currentDesc) return;
+      const { error } = await supabase.from('accounts').update({ description: newDesc }).eq('id', id);
+      if (!error) fetchPosts();
+    }
+
+    async function deletePost(id) {
+      if (!confirm('هل أنت متأكد من الحذف؟')) return;
+      const { error } = await supabase.from('accounts').delete().eq('id', id);
+      if (!error) fetchPosts();
+    }
+
+    function uploadWithProgress(file, path, token, onProgress) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `https://cscruajtgsyartddfuhu.supabase.co/storage/v1/object/media/${path}`);
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            onProgress(percent);
+          }
+        };
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const url = `https://cscruajtgsyartddfuhu.supabase.co/storage/v1/object/public/media/${path}`;
+            resolve(url);
+          } else {
+            reject(new Error(`فشل رفع الملف: ${xhr.status}`));
+          }
+        };
+        xhr.onerror = () => reject(new Error('خطأ في رفع الملف'));
+        const formData = new FormData();
+        formData.append('file', file);
+        xhr.send(formData);
+      });
+    }
+
+    uploadBtn.onclick = async () => {
+      const videoFile = document.getElementById('videoFile').files[0];
+      const imageFile = document.getElementById('imageFile').files[0];
+      const description = document.getElementById('description').value.trim();
+
+      if (!description || (!videoFile && !imageFile)) {
+        return alert('يرجى إدخال وصف ورفع صورة أو فيديو');
+      }
+
+      uploadBtn.disabled = true;
+      progressText.classList.remove('hidden');
+      progressText.textContent = '⏳ جاري الرفع...';
+
+      try {
+        let videoUrl = '';
+        let imageUrl = '';
+
+        const token = session.access_token;
+
+        if (videoFile) {
+          const name = videoFile.name.replace(/[^\w.-]/g, '_');
+          const path = `videos/${Date.now()}-${name}`;
+          videoUrl = await uploadWithProgress(videoFile, path, token, (p) => {
+            progressText.textContent = `📤 نسبة التحميل: ${p}%`;
+          });
+        }
+
+        if (imageFile) {
+          const name = imageFile.name.replace(/[^\w.-]/g, '_');
+          const path = `images/${Date.now()}-${name}`;
+          const { error } = await supabase.storage.from('media').upload(path, imageFile);
+          if (error) throw error;
+          const { data } = supabase.storage.from('media').getPublicUrl(path);
+          imageUrl = data.publicUrl;
+        }
+
+        const { error: insertError } = await supabase.from('accounts').insert([{
+          description, video_url: videoUrl, image_url: imageUrl, created_at: new Date().toISOString()
+        }]);
+        if (insertError) throw insertError;
+
+        document.getElementById('videoFile').value = '';
+        document.getElementById('imageFile').value = '';
+        document.getElementById('description').value = '';
+        progressText.classList.add('hidden');
+        alert('✅ تم النشر بنجاح');
+        fetchPosts();
+      } catch (err) {
+        console.error(err);
+        alert('❌ فشل في رفع البيانات');
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    };
+
+    checkAuth();
+  </script>
+
+</body>
+</html>
