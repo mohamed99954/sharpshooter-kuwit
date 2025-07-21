@@ -69,13 +69,14 @@
   const card = document.createElement('div');
   card.className = 'bg-white p-4 rounded shadow space-y-3';
 
+  // الفيديو أو الصورة - تظهر دائمًا
   if (post.video_url) {
-    const video = document.createElement('video');
-    video.src = post.video_url;
-    video.controls = true;
-    video.className = 'w-full rounded';
-    card.appendChild(video);
-  }
+  const video = document.createElement('video');
+  video.src = post.video_url;
+  video.controls = true;
+  video.className = 'w-full h-auto rounded object-cover';
+  card.appendChild(video);
+}
 
   if (post.image_url) {
     const img = document.createElement('img');
@@ -85,27 +86,46 @@
     card.appendChild(img);
   }
 
-  const desc = document.createElement('p');
-  desc.className = 'text-sm text-gray-800 whitespace-pre-line leading-relaxed break-words text-right';
-  desc.innerHTML = post.description.replace(/\n/g, '<br>');
-  card.appendChild(desc);
+  // زر التفاصيل + أزرار واتساب وتيليجرام كنصوص
+const actionsRow = document.createElement('div');
+actionsRow.className = 'flex justify-center items-center gap-4 mt-3';
 
-  // ✅ أيقونات واتساب وتيليغرام
-  const contactDiv = document.createElement('div');
-contactDiv.className = 'flex justify-center gap-4 mt-4';
-  const whatsappLink = document.createElement('a');
-  whatsappLink.href = 'https://wa.me/965XXXXXXXX'; // ✅ استبدل بالرقم الصحيح
-  whatsappLink.target = '_blank';
-  whatsappLink.innerHTML = '<img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png" class="w-6 h-6" alt="واتساب"/>';
+// زر "تفاصيل"
+const detailsBtn = document.createElement('button');
+detailsBtn.textContent = 'تفاصيل';
+detailsBtn.className = 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition';
 
-  const telegramLink = document.createElement('a');
-  telegramLink.href = 'https://t.me/YourTelegramUsername'; // ✅ استبدل بالمعرف الصحيح
-  telegramLink.target = '_blank';
-  telegramLink.innerHTML = '<img src="https://img.icons8.com/color/48/000000/telegram-app--v1.png" class="w-6 h-6" alt="تيليغرام"/>';
+// زر "واتساب" بنفس تصميم "تفاصيل"
+const whatsappBtn = document.createElement('a');
+whatsappBtn.href = 'https://wa.me/965XXXXXXXX'; // ← غيّر الرقم
+whatsappBtn.target = '_blank';
+whatsappBtn.textContent = 'واتساب';
+whatsappBtn.className = 'bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition';
 
-  contactDiv.appendChild(whatsappLink);
-  contactDiv.appendChild(telegramLink);
-  card.appendChild(contactDiv);
+// زر "تيليجرام" بنفس التصميم
+const telegramBtn = document.createElement('a');
+telegramBtn.href = 'https://t.me/YourTelegramUsername'; // ← غيّر المعرف
+telegramBtn.target = '_blank';
+telegramBtn.textContent = 'تيليجرام';
+telegramBtn.className = 'bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500 transition';
+
+// إضافة الأزرار للصف
+actionsRow.appendChild(detailsBtn);
+actionsRow.appendChild(whatsappBtn);
+actionsRow.appendChild(telegramBtn);
+card.appendChild(actionsRow);
+
+// وصف النص - مخفي مبدئياً
+const desc = document.createElement('p');
+desc.className = 'text-sm text-gray-800 whitespace-pre-line leading-relaxed break-words text-right hidden';
+desc.innerHTML = post.description.replace(/\n/g, '<br>');
+card.appendChild(desc);
+
+// التحكم في إظهار/إخفاء النص
+detailsBtn.addEventListener('click', () => {
+  desc.classList.toggle('hidden');
+  detailsBtn.textContent = desc.classList.contains('hidden') ? 'تفاصيل' : 'إخفاء';
+});
 
   cardsContainer.appendChild(card);
 });
