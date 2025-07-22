@@ -77,13 +77,59 @@
 
         // الفيديو
        // الفيديو
+// الفيديو
 if (post.video_url) {
+  const videoWrapper = document.createElement('div');
+  videoWrapper.className = 'relative';
+
   const video = document.createElement('video');
   video.src = post.video_url;
   video.controls = true;
-  video.playsInline = true; // ✅ ضروري جداً لحل المشكلة في iPhone
-  video.className = 'w-full h-48 object-cover rounded-t';
-  card.appendChild(video);
+  video.playsInline = true;
+  video.className = 'w-full aspect-video object-contain rounded-t bg-black';
+  videoWrapper.appendChild(video);
+
+  // زر تكبير
+  const expandBtn = document.createElement('button');
+  expandBtn.innerHTML = 'تكبير';
+  expandBtn.className = 'absolute bottom-2 left-2 bg-white text-black text-xs px-2 py-1 rounded shadow';
+  expandBtn.addEventListener('click', () => {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  `;
+
+  const fullVideo = document.createElement('video');
+  fullVideo.src = post.video_url;
+  fullVideo.controls = true;
+  fullVideo.autoplay = true;
+  fullVideo.style.cssText = `
+    max-width: 100%;
+    max-height: 100%;
+  `;
+
+  overlay.appendChild(fullVideo);
+
+  // عند الضغط خارج الفيديو يتم إغلاقه
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+    }
+  });
+
+  document.body.appendChild(overlay);
+});
+
+  videoWrapper.appendChild(expandBtn);
+  card.appendChild(videoWrapper);
 }
 
         // الصورة
@@ -105,29 +151,50 @@ if (post.account_name) {
 }
 
         // أزرار الإجراءات
-        const actionsRow = document.createElement('div');
-        actionsRow.className = 'flex justify-center items-center flex-wrap sm:flex-nowrap gap-2 mt-3';
+        // أزرار الإجراءات (تفاصيل فقط)
+const actionsRow = document.createElement('div');
+actionsRow.className = 'flex justify-center items-center flex-wrap sm:flex-nowrap gap-2 mt-3';
 
-        const detailsBtn = document.createElement('button');
+const detailsBtn = document.createElement('button');
 detailsBtn.textContent = 'تفاصيل الحساب';
 detailsBtn.className = 'px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition';
 
-const whatsappBtn = document.createElement('a');
-whatsappBtn.href = 'https://wa.me/965XXXXXXXX'; // ← غيّر الرقم
-whatsappBtn.target = '_blank';
-whatsappBtn.textContent = 'واتساب';
-whatsappBtn.className = 'px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition';
-        
-        actionsRow.appendChild(detailsBtn);
-        actionsRow.appendChild(whatsappBtn);
-        card.appendChild(actionsRow);
+actionsRow.appendChild(detailsBtn);
+card.appendChild(actionsRow);
 
         // وصف النص (مخفي مبدئياً)
-        const desc = document.createElement('p');
-        desc.className = 'account-desc text-gray-800 whitespace-pre-line leading-relaxed break-words text-center hidden';
-        desc.innerHTML = post.description.replace(/\n/g, '<br>');
-        card.appendChild(desc);
+       // وصف النص (مخفي مبدئياً)
+const desc = document.createElement('div');
+desc.className = 'account-desc text-gray-800 whitespace-pre-line leading-relaxed break-words text-center hidden mt-4';
 
+// نص الوصف
+const descText = document.createElement('p');
+descText.innerHTML = post.description.replace(/\n/g, '<br>');
+desc.appendChild(descText);
+
+// زر واتساب
+const whatsappBtn = document.createElement('a');
+whatsappBtn.href = 'https://wa.me/96596088064'; // ← غيّر الرقم
+whatsappBtn.target = '_blank';
+whatsappBtn.innerHTML = 'واتساب'; // أو يمكن استخدام أيقونة SVG لاحقاً
+whatsappBtn.className = 'px-4 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition';
+
+// زر تلجرام
+const telegramBtn = document.createElement('a');
+telegramBtn.href = 'https://t.me/al3nzy'; // ← غيّر الرابط
+telegramBtn.target = '_blank';
+telegramBtn.innerHTML = 'تيليغرام'; // أو أيقونة SVG إذا أردت
+telegramBtn.className = 'px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition';
+
+// حاوية الأزرار
+const btnWrapper = document.createElement('div');
+btnWrapper.className = 'flex justify-center gap-2 mt-4';
+btnWrapper.appendChild(whatsappBtn);
+btnWrapper.appendChild(telegramBtn);
+desc.appendChild(btnWrapper);
+
+// إضافة الوصف إلى البطاقة
+card.appendChild(desc);
         // تبديل عرض الوصف
         detailsBtn.addEventListener('click', () => {
   const isHidden = desc.classList.toggle('hidden');
