@@ -221,56 +221,57 @@ function editPost(id, currentDesc) {
         return alert('يرجى إدخال وصف ورفع صورة أو فيديو');
       }
 
-      uploadBtn.disabled = true;
-      progressText.classList.remove('hidden');
-      progressText.textContent = '⏳ جاري الرفع...';
+     uploadBtn.disabled = true;
+progressText.classList.remove('hidden');
+progressText.textContent = '📤 نسبة التقدم: 0%';
 
-      try {
-        let videoUrl = '';
-        let imageUrl = '';
+try {
+  let videoUrl = '';
+  let imageUrl = '';
 
-        const token = session.access_token;
+  const token = session.access_token;
 
-        if (videoFile) {
-          const name = videoFile.name.replace(/[^\w.-]/g, '_');
-          const path = `videos/${Date.now()}-${name}`;
-          videoUrl = await uploadWithProgress(videoFile, path, token, (p) => {
-            progressText.textContent = `📤 نسبة التحميل: ${p}%`;
-          });
-        }
+  if (videoFile) {
+    const name = videoFile.name.replace(/[^\w.-]/g, '_');
+    const path = `videos/${Date.now()}-${name}`;
+    videoUrl = await uploadWithProgress(videoFile, path, token, (percent) => {
+      progressText.textContent = `📤 جاري رفع الفيديو: ${percent}%`;
+    });
+  }
 
-        if (imageFile) {
-          const name = imageFile.name.replace(/[^\w.-]/g, '_');
-          const path = `images/${Date.now()}-${name}`;
-          const { error } = await supabase.storage.from('media').upload(path, imageFile);
-          if (error) throw error;
-          const { data } = supabase.storage.from('media').getPublicUrl(path);
-          imageUrl = data.publicUrl;
-        }
+  if (imageFile) {
+    const name = imageFile.name.replace(/[^\w.-]/g, '_');
+    const path = `images/${Date.now()}-${name}`;
+    imageUrl = await uploadWithProgress(imageFile, path, token, (percent) => {
+      progressText.textContent = `📤 جاري رفع الصورة: ${percent}%`;
+    });
+  }
 
-        const accountName = document.getElementById('accountName').value.trim();
+  const accountName = document.getElementById('accountName').value.trim();
+  const description = document.getElementById('description').value.trim();
 
-const { error: insertError } = await supabase.from('accounts').insert([{
-  account_name: accountName,
-  description,
-  video_url: videoUrl,
-  image_url: imageUrl,
-  created_at: new Date().toISOString()
-}]);
-        if (insertError) throw insertError;
+  const { error: insertError } = await supabase.from('accounts').insert([{
+    account_name: accountName,
+    description,
+    video_url: videoUrl,
+    image_url: imageUrl,
+    created_at: new Date().toISOString()
+  }]);
 
-        document.getElementById('videoFile').value = '';
-        document.getElementById('imageFile').value = '';
-        document.getElementById('description').value = '';
-        progressText.classList.add('hidden');
-        alert('✅ تم النشر بنجاح');
-        fetchPosts();
-      } catch (err) {
-        console.error(err);
-        alert('❌ فشل في رفع البيانات');
-      } finally {
-        uploadBtn.disabled = false;
-      }
+  if (insertError) throw insertError;
+
+  document.getElementById('videoFile').value = '';
+  document.getElementById('imageFile').value = '';
+  document.getElementById('description').value = '';
+  progressText.classList.add('hidden');
+  alert('✅ تم النشر بنجاح');
+  fetchPosts();
+} catch (err) {
+  console.error(err);
+  alert('❌ فشل في رفع البيانات');
+} finally {
+  uploadBtn.disabled = false;
+}
     };
 
     checkAuth();
