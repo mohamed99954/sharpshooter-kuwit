@@ -6,6 +6,7 @@
   <title>شارب شوتر الكويت</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"> <!-- ✅ السطر الجديد -->
   <style>
     body {
       font-family: 'Tajawal', sans-serif;
@@ -46,6 +47,41 @@
   </main>
 
   <script>
+    // ✅ دالة تكبير الفيديو
+    function expandVideo(videoUrl) {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      `;
+
+      const fullVideo = document.createElement('video');
+      fullVideo.src = videoUrl;
+      fullVideo.controls = true;
+      fullVideo.autoplay = true;
+      fullVideo.style.cssText = `
+        max-width: 100%;
+        max-height: 100%;
+      `;
+
+      overlay.appendChild(fullVideo);
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          document.body.removeChild(overlay);
+        }
+      });
+
+      document.body.appendChild(overlay);
+    }
+
     const supabase = window.supabase.createClient(
       'https://cscruajtgsyartddfuhu.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzY3J1YWp0Z3N5YXJ0ZGRmdWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NDIwNzQsImV4cCI6MjA2ODQxODA3NH0.dM06HDS5mdeaYhcZE7R-tL91C_pXqlBT-CcOZ_axh24'
@@ -72,134 +108,86 @@
       }
 
       data.forEach(post => {
-        const card = document.createElement('div');
-        card.className = 'bg-white p-2 rounded shadow overflow-hidden';
+       const card = document.createElement('div');
+card.className = 'bg-white p-0 rounded shadow overflow-hidden';
 
-        // الفيديو
-       // الفيديو
-// الفيديو
+// ✅ الفيديو
 if (post.video_url) {
   const videoWrapper = document.createElement('div');
   videoWrapper.className = 'relative';
 
-  const video = document.createElement('video');
-  video.src = post.video_url;
-  video.controls = true;
-  video.playsInline = true;
-  video.className = 'w-full aspect-video object-contain rounded-t bg-black';
-  videoWrapper.appendChild(video);
+ const video = document.createElement('video');
+video.src = post.video_url;
+video.autoplay = true;
+video.muted = true;
+video.loop = true;
+video.playsInline = true;
+video.controls = false; // إزالة زر التشغيل
+video.className = 'w-full h-40 object-cover rounded-t bg-black';
 
-  // زر تكبير
-  const expandBtn = document.createElement('button');
-  expandBtn.innerHTML = 'تكبير';
-  expandBtn.className = 'absolute bottom-2 left-2 bg-white text-black text-xs px-2 py-1 rounded shadow';
-  expandBtn.addEventListener('click', () => {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  `;
-
-  const fullVideo = document.createElement('video');
-  fullVideo.src = post.video_url;
-  fullVideo.controls = true;
-  fullVideo.autoplay = true;
-  fullVideo.style.cssText = `
-    max-width: 100%;
-    max-height: 100%;
-  `;
-
-  overlay.appendChild(fullVideo);
-
-  // عند الضغط خارج الفيديو يتم إغلاقه
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      document.body.removeChild(overlay);
-    }
-  });
-
-  document.body.appendChild(overlay);
-});
-
-  videoWrapper.appendChild(expandBtn);
-  card.appendChild(videoWrapper);
+video.addEventListener('click', () => expandVideo(post.video_url));
+videoWrapper.appendChild(video);
+card.appendChild(videoWrapper);
 }
 
-        // الصورة
-       // الصورة
-if (post.image_url) {
-  const img = document.createElement('img');
-  img.src = post.image_url;
-  img.alt = 'صورة الحساب';
-  img.className = 'w-full h-48 object-cover rounded';
-  card.appendChild(img);
-}
-
-// ✅ إضافة اسم الحساب في وسط أسفل الفيديو/الصورة
+// ✅ اسم الحساب
 if (post.account_name) {
   const name = document.createElement('p');
   name.textContent = post.account_name;
-  name.className = 'text-center text-blue-700 font-semibold mt-2';
+  name.className = 'text-center text-blue-700 font-medium';
+  name.style.fontSize = '0.6rem'; // ✅ نفس الحجم السابق
   card.appendChild(name);
 }
 
-        // أزرار الإجراءات
-        // أزرار الإجراءات (تفاصيل فقط)
+// ✅ زر تفاصيل الحساب (حجمه أصغر من الاسم)
 const actionsRow = document.createElement('div');
-actionsRow.className = 'flex justify-center items-center flex-wrap sm:flex-nowrap gap-2 mt-3';
+actionsRow.className = 'flex justify-center items-center gap-2';
 
 const detailsBtn = document.createElement('button');
-detailsBtn.textContent = 'تفاصيل الحساب';
-detailsBtn.className = 'px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition';
+detailsBtn.innerHTML = 'تفاصيل الحساب <span class="inline-block scale-75 align-middle"></span>';
+detailsBtn.className = 'bg-blue-500 text-white rounded hover:bg-blue-600 transition';
+detailsBtn.style.fontSize = '0.5rem'; // ✅ حجم أصغر من اسم الحساب
+detailsBtn.style.padding = '2px 6px'; // ✅ تصغير البادينغ
 
 actionsRow.appendChild(detailsBtn);
 card.appendChild(actionsRow);
 
-        // وصف النص (مخفي مبدئياً)
-       // وصف النص (مخفي مبدئياً)
-const desc = document.createElement('div');
-desc.className = 'account-desc text-gray-800 whitespace-pre-line leading-relaxed break-words text-center hidden mt-4';
+        // ✅ وصف الحساب
+        const desc = document.createElement('div');
+        desc.className = 'account-desc text-gray-800 text-xs whitespace-pre-line leading-relaxed break-words text-center hidden mt-1';
 
-// نص الوصف
-const descText = document.createElement('p');
-descText.innerHTML = post.description.replace(/\n/g, '<br>');
-desc.appendChild(descText);
+        const descText = document.createElement('p');
+        descText.innerHTML = post.description.replace(/\n/g, '<br>');
+        desc.appendChild(descText);
 
-// زر واتساب
-const whatsappBtn = document.createElement('a');
-whatsappBtn.href = 'https://wa.me/96596088064'; // ← غيّر الرقم
+        const whatsappBtn = document.createElement('a');
+whatsappBtn.href = 'https://wa.me/96596088064';
 whatsappBtn.target = '_blank';
-whatsappBtn.innerHTML = 'واتساب'; // أو يمكن استخدام أيقونة SVG لاحقاً
-whatsappBtn.className = 'px-4 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition';
+whatsappBtn.innerHTML = 'واتساب';
+whatsappBtn.className = 'bg-green-500 text-white rounded hover:bg-green-600 transition';
+whatsappBtn.style.fontSize = '0.5rem';
+whatsappBtn.style.padding = '2px 6px';
 
-// زر تلجرام
 const telegramBtn = document.createElement('a');
-telegramBtn.href = 'https://t.me/al3nzy'; // ← غيّر الرابط
+telegramBtn.href = 'https://t.me/al3nzy';
 telegramBtn.target = '_blank';
-telegramBtn.innerHTML = 'تيليغرام'; // أو أيقونة SVG إذا أردت
-telegramBtn.className = 'px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition';
+telegramBtn.innerHTML = 'تيليغرام';
+telegramBtn.className = 'bg-blue-500 text-white rounded hover:bg-blue-600 transition';
+telegramBtn.style.fontSize = '0.5rem';
+telegramBtn.style.padding = '2px 6px';
 
-// حاوية الأزرار
-const btnWrapper = document.createElement('div');
-btnWrapper.className = 'flex justify-center gap-2 mt-4';
-btnWrapper.appendChild(whatsappBtn);
-btnWrapper.appendChild(telegramBtn);
-desc.appendChild(btnWrapper);
+        const btnWrapper = document.createElement('div');
+        btnWrapper.className = 'flex justify-center gap-2 mt-4';
+        btnWrapper.appendChild(whatsappBtn);
+        btnWrapper.appendChild(telegramBtn);
+        desc.appendChild(btnWrapper);
 
-// إضافة الوصف إلى البطاقة
-card.appendChild(desc);
-        // تبديل عرض الوصف
+        card.appendChild(desc);
+
         detailsBtn.addEventListener('click', () => {
-  const isHidden = desc.classList.toggle('hidden');
-  detailsBtn.textContent = isHidden ? 'تفاصيل الحساب' : 'إخفاء';
-});
+          const isHidden = desc.classList.toggle('hidden');
+          detailsBtn.textContent = isHidden ? 'تفاصيل الحساب' : 'إخفاء';
+        });
 
         cardsContainer.appendChild(card);
       });
