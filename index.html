@@ -17,28 +17,35 @@
 
 <body class="bg-gray-100 text-right">
 
-  <!-- ✅ رأس الصفحة -->
-  <header class="bg-black text-white py-6 shadow mb-6">
-    <div class="max-w-4xl mx-auto text-center space-y-3">
-      <h1 class="text-xl sm:text-2xl font-semibold tracking-wider">
-         شارب شوتر الكويت 
-      </h1>
-      <p class="text-sm text-gray-300">
-         نوفر جميع خدمات الألعاب وملحقاتها 
-      </p>
-      <div class="flex flex-wrap justify-center gap-4 mt-4">
-        <a href="https://www.shooterkw.com/" target="_blank" class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-black transition">
-          الموقع الرسمي
-        </a>
-        <a href="https://t.me/Shooterkwinfo" target="_blank" class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-black transition">
-          تيليغرام
-        </a>
-        <a href="https://t.me/al3nzy" target="_blank" class="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-black transition">
-          الدعم
-        </a>
-      </div>
-    </div>
-  </header>
+  
+<!-- ✅ معلومات الحسابات الجديدة مع الأزرار -->
+<section class="bg-blue-50 shadow rounded-lg p-2 w-full px-4 sm:px-8 mb-4 text-sm leading-tight text-center space-y-1">
+  >  <p class="text-yellow-600 font-semibold m-0">جميع الحسابات الموجودة في الموقع متوفرة</p>
+  <p class="text-green-600 font-semibold m-0">جميع الحسابات آمنة</p>
+  <p class="text-blue-600 font-semibold m-0">نقبل الدفع من جميع دول العالم</p>
+  <p class="text-pink-600 font-semibold m-0">يتم الإضافة بشكل مستمر</p>
+
+  <p class="text-purple-700 font-bold mt-1 mb-0">جميع الحسابات تعمل على الآيفون والأندرويد بعد التحديث الجديد</p>
+
+  <div class="flex justify-center flex-wrap gap-1 mt-2">
+    <a href="https://whatsapp.com/channel/0029VbA15zU0gcfATgJrrR1x" target="_blank"
+       class="bg-green-500 text-white rounded hover:bg-green-600 transition text-[0.7rem] px-2 py-1 font-medium">
+      الواتساب
+    </a>
+    <a href="https://t.me/Storekuwait" target="_blank"
+       class="bg-blue-500 text-white rounded hover:bg-blue-600 transition text-[0.7rem] px-2 py-1 font-medium">
+      التليجرام 
+    </a>
+    <a href="https://t.me/AL3NZY" target="_blank"
+       class="bg-gray-700 text-white rounded hover:bg-gray-800 transition text-[0.7rem] px-2 py-1 font-medium">
+      الأدمن 
+    </a>
+    <a href="https://t.me/Scorpio0n" target="_blank"
+       class="bg-gray-600 text-white rounded hover:bg-gray-700 transition text-[0.7rem] px-2 py-1 font-medium">
+      المشرف
+    </a>
+  </div>
+</section>
 
   <!-- ✅ المنشورات -->
   <main class="max-w-6xl mx-auto px-4">
@@ -144,9 +151,9 @@ const actionsRow = document.createElement('div');
 actionsRow.className = 'flex justify-center items-center gap-2';
 
 const detailsBtn = document.createElement('button');
-detailsBtn.innerHTML = 'تفاصيل الحساب <span class="inline-block scale-75 align-middle"></span>';
+detailsBtn.innerHTML = 'تفاصيل الحساب <span class="inline-block scale-100 align-middle"></span>';
 detailsBtn.className = 'bg-blue-500 text-white rounded hover:bg-blue-600 transition';
-detailsBtn.style.fontSize = '0.5rem'; // ✅ حجم أصغر من اسم الحساب
+detailsBtn.style.fontSize = '0.7rem'; // ✅ حجم أصغر من اسم الحساب
 detailsBtn.style.padding = '2px 6px'; // ✅ تصغير البادينغ
 
 actionsRow.appendChild(detailsBtn);
@@ -154,7 +161,7 @@ card.appendChild(actionsRow);
 
         // ✅ وصف الحساب
         const desc = document.createElement('div');
-        desc.className = 'account-desc text-gray-800 text-xs whitespace-pre-line leading-relaxed break-words text-center hidden mt-1';
+        desc.className = 'account-desc text-gray-1000 text-xs whitespace-pre-line leading-relaxed break-words text-center hidden mt-1';
 
         const descText = document.createElement('p');
         descText.innerHTML = post.description.replace(/\n/g, '<br>');
