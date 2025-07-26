@@ -124,18 +124,34 @@ if (post.video_url) {
   const videoWrapper = document.createElement('div');
   videoWrapper.className = 'relative';
 
- const video = document.createElement('video');
-video.src = post.video_url;
-video.autoplay = true;
-video.muted = true;
-video.loop = true;
-video.playsInline = true;
-video.controls = false; // إزالة زر التشغيل
-video.className = 'w-full h-40 object-cover rounded-t bg-black';
+ // ✅ الفيديو
+// ✅ الفيديو
+if (post.video_url) {
+  const videoWrapper = document.createElement('div');
+  videoWrapper.className = 'relative';
 
-video.addEventListener('click', () => expandVideo(post.video_url));
-videoWrapper.appendChild(video);
-card.appendChild(videoWrapper);
+  const video = document.createElement('video');
+  video.src = post.video_url;
+  video.autoplay = true;
+  video.muted = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.controls = false;
+  video.className = 'w-full h-40 object-cover rounded-t bg-black';
+  video.addEventListener('click', () => expandVideo(post.video_url));
+
+  videoWrapper.appendChild(video);
+
+  // ✅ إظهار الشارة فقط إذا كان is_ad مفعّل
+  if (post.is_ad) {
+    const adBadge = document.createElement('div');
+    adBadge.textContent = '📢 إعلان';
+    adBadge.className = 'absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded shadow';
+    videoWrapper.appendChild(adBadge);
+  }
+
+  card.appendChild(videoWrapper);
+}
 }
 
 // ✅ اسم الحساب
