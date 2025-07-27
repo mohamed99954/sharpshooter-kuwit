@@ -6,7 +6,7 @@
   <title>شارب شوتر الكويت</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css"> <!-- ✅ السطر الجديد -->
+  <link rel="stylesheet" href="styles/style.css">
   <style>
     body {
       font-family: 'Tajawal', sans-serif;
@@ -102,7 +102,8 @@
       const { data, error } = await supabase
         .from('accounts')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('is_pinned', { ascending: false })
+.order('created_at', { ascending: false });
 
       if (error) {
         console.error('خطأ في جلب المنشورات:', error.message);

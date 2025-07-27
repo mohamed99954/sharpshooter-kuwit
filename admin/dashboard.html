@@ -34,6 +34,10 @@
   <input type="checkbox" id="isAd" class="form-checkbox text-blue-600" />
   <span>إظهار شارة "إعلان"</span>
 </label>
+<label class="flex items-center space-x-2">
+  <input type="checkbox" id="isPinned" class="form-checkbox text-green-600" />
+  <span>📌 تثبيت المنشور أعلى الصفحة</span>
+</label>
 </div>
 
     <!-- المنشورات -->
@@ -74,6 +78,7 @@
       const { data, error } = await supabase
         .from('accounts')
         .select('*')
+         .order('is_pinned', { ascending: false }) // ✅ المثبتة أولاً
         .order('created_at', { ascending: false });
       if (error) return console.error(error);
       renderPosts(data);
@@ -135,6 +140,11 @@ if (post.account_name) {
         delBtn.className = 'bg-red-600 text-white px-3 py-1 rounded';
         delBtn.onclick = () => deletePost(post.id);
         actions.appendChild(delBtn);
+        const pinBtn = document.createElement('button');
+pinBtn.textContent = post.is_pinned ? '📌 إلغاء التثبيت' : '📌 تثبيت';
+pinBtn.className = 'bg-green-500 text-white px-3 py-1 rounded';
+pinBtn.onclick = () => togglePin(post.id, !post.is_pinned);
+actions.appendChild(pinBtn);
 
         div.appendChild(actions);
         postsContainer.appendChild(div);
@@ -196,7 +206,19 @@ function editPost(id, currentDesc) {
       const { error } = await supabase.from('accounts').delete().eq('id', id);
       if (!error) fetchPosts();
     }
-
+async function togglePin(id, shouldPin) {
+  const { error } = await supabase
+    .from('accounts')
+    .update({ is_pinned: shouldPin })
+    .eq('id', id);
+    
+  if (error) {
+    alert('❌ فشل تغيير حالة التثبيت');
+    console.error(error);
+  } else {
+    fetchPosts(); // لإعادة عرض المنشورات بعد التحديث
+  }
+}
     function uploadWithProgress(file, path, token, onProgress) {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -259,18 +281,19 @@ try {
   }
 
   const accountName = document.getElementById('accountName').value.trim();
-  const description = document.getElementById('description').value.trim();
-const isAd = document.getElementById('isAd').checked; // ✅ 
-  const { error: insertError } = await supabase.from('accounts').insert([{
-    account_name: accountName,
-    description,
-    video_url: videoUrl,
-    image_url: imageUrl,
-      is_ad: isAd, // ✅ إضافة هذا السطر
+const description = document.getElementById('description').value.trim();
+const isAd = document.getElementById('isAd').checked;
+const isPinned = document.getElementById('isPinned').checked; // ✅ أضف هذا هنا
 
-    created_at: new Date().toISOString()
-  }]);
-
+const { error: insertError } = await supabase.from('accounts').insert([{
+  account_name: accountName,
+  description,
+  video_url: videoUrl,
+  image_url: imageUrl,
+  is_ad: isAd,
+  is_pinned: isPinned, // ✅ هنا نرسل القيمة إلى قاعدة البيانات
+  created_at: new Date().toISOString()
+}]);
   if (insertError) throw insertError;
 
   document.getElementById('videoFile').value = '';
