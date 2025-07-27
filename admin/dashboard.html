@@ -38,6 +38,10 @@
   <input type="checkbox" id="isPinned" class="form-checkbox text-green-600" />
   <span>📌 تثبيت المنشور أعلى الصفحة</span>
 </label>
+<label class="flex items-center space-x-2">
+  <input type="checkbox" id="showContacts" class="form-checkbox text-indigo-600" checked />
+  <span>👁 إظهار روابط التواصل</span>
+</label>
 </div>
 
     <!-- المنشورات -->
@@ -128,12 +132,13 @@ if (post.account_name) {
 
         const actions = document.createElement('div');
         actions.className = 'flex gap-2';
-
-        const editBtn = document.createElement('button');
-        editBtn.textContent = '✏ تعديل';
-        editBtn.className = 'bg-yellow-500 text-white px-3 py-1 rounded';
-        editBtn.onclick = () => editPost(post.id, post.description);
-        actions.appendChild(editBtn);
+        const toggleContactsBtn = document.createElement('button');
+toggleContactsBtn.textContent = post.show_contacts
+  ? ' إخفاء روابط التواصل'
+  : ' عرض روابط التواصل';
+toggleContactsBtn.className = 'bg-indigo-500 text-white px-3 py-1 rounded';
+toggleContactsBtn.onclick = () => toggleShowContacts(post.id, !post.show_contacts);
+actions.appendChild(toggleContactsBtn);
 
         const delBtn = document.createElement('button');
         delBtn.textContent = '🗑 حذف';
@@ -141,7 +146,7 @@ if (post.account_name) {
         delBtn.onclick = () => deletePost(post.id);
         actions.appendChild(delBtn);
         const pinBtn = document.createElement('button');
-pinBtn.textContent = post.is_pinned ? '📌 إلغاء التثبيت' : '📌 تثبيت';
+pinBtn.textContent = post.is_pinned ? ' إلغاء التثبيت' : ' تثبيت';
 pinBtn.className = 'bg-green-500 text-white px-3 py-1 rounded';
 pinBtn.onclick = () => togglePin(post.id, !post.is_pinned);
 actions.appendChild(pinBtn);
@@ -219,6 +224,19 @@ async function togglePin(id, shouldPin) {
     fetchPosts(); // لإعادة عرض المنشورات بعد التحديث
   }
 }
+async function toggleShowContacts(id, newValue) {
+  const { error } = await supabase
+    .from('accounts')
+    .update({ show_contacts: newValue })
+    .eq('id', id);
+
+  if (error) {
+    alert('❌ فشل تغيير حالة عرض الروابط');
+    console.error(error);
+  } else {
+    fetchPosts(); // تحديث العرض بعد التغيير
+  }
+}
     function uploadWithProgress(file, path, token, onProgress) {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -284,6 +302,7 @@ try {
 const description = document.getElementById('description').value.trim();
 const isAd = document.getElementById('isAd').checked;
 const isPinned = document.getElementById('isPinned').checked; // ✅ أضف هذا هنا
+const showContacts = document.getElementById('showContacts').checked;
 
 const { error: insertError } = await supabase.from('accounts').insert([{
   account_name: accountName,
@@ -291,7 +310,8 @@ const { error: insertError } = await supabase.from('accounts').insert([{
   video_url: videoUrl,
   image_url: imageUrl,
   is_ad: isAd,
-  is_pinned: isPinned, // ✅ هنا نرسل القيمة إلى قاعدة البيانات
+  is_pinned: isPinned,
+  show_contacts: showContacts, // ✅ افتراضيًا الروابط تكون مفعّلة عند النشر
   created_at: new Date().toISOString()
 }]);
   if (insertError) throw insertError;

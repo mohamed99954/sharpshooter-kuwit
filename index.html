@@ -101,7 +101,7 @@
     async function fetchPosts() {
       const { data, error } = await supabase
         .from('accounts')
-        .select('*')
+        .select('id, account_name, description, image_url, video_url, is_pinned, is_ad, show_contacts')
         .order('is_pinned', { ascending: false })
 .order('created_at', { ascending: false });
 
@@ -126,10 +126,7 @@ if (post.video_url) {
   videoWrapper.className = 'relative';
 
  // ✅ الفيديو
-// ✅ الفيديو
 if (post.video_url) {
-  const videoWrapper = document.createElement('div');
-  videoWrapper.className = 'relative';
 
   const video = document.createElement('video');
   video.src = post.video_url;
@@ -178,36 +175,39 @@ actionsRow.appendChild(detailsBtn);
 card.appendChild(actionsRow);
 
         // ✅ وصف الحساب
-        const desc = document.createElement('div');
-        desc.className = 'account-desc text-gray-1000 text-xs whitespace-pre-line leading-relaxed break-words text-center hidden mt-1';
+       const desc = document.createElement('div');
+desc.className = 'account-desc text-gray-1000 text-xs whitespace-pre-line leading-relaxed break-words text-center hidden mt-1';
 
-        const descText = document.createElement('p');
-        descText.innerHTML = post.description.replace(/\n/g, '<br>');
-        desc.appendChild(descText);
+const descText = document.createElement('p');
+descText.innerHTML = post.description.replace(/\n/g, '<br>');
+desc.appendChild(descText);
 
-        const whatsappBtn = document.createElement('a');
-whatsappBtn.href = 'https://wa.me/96596088064';
-whatsappBtn.target = '_blank';
-whatsappBtn.innerHTML = 'واتساب';
-whatsappBtn.className = 'bg-green-500 text-white rounded hover:bg-green-600 transition';
-whatsappBtn.style.fontSize = '0.5rem';
-whatsappBtn.style.padding = '2px 6px';
+// ✅ إظهار روابط التواصل فقط إذا المنشور مثبت ويسمح بإظهارها
+if (post.is_pinned && post.show_contacts) {
+  const whatsappBtn = document.createElement('a');
+  whatsappBtn.href = 'https://wa.me/96596088064';
+  whatsappBtn.target = '_blank';
+  whatsappBtn.innerHTML = 'واتساب';
+  whatsappBtn.className = 'bg-green-500 text-white rounded hover:bg-green-600 transition';
+  whatsappBtn.style.fontSize = '0.5rem';
+  whatsappBtn.style.padding = '2px 6px';
 
-const telegramBtn = document.createElement('a');
-telegramBtn.href = 'https://t.me/al3nzy';
-telegramBtn.target = '_blank';
-telegramBtn.innerHTML = 'تيليغرام';
-telegramBtn.className = 'bg-blue-500 text-white rounded hover:bg-blue-600 transition';
-telegramBtn.style.fontSize = '0.5rem';
-telegramBtn.style.padding = '2px 6px';
+  const telegramBtn = document.createElement('a');
+  telegramBtn.href = 'https://t.me/al3nzy';
+  telegramBtn.target = '_blank';
+  telegramBtn.innerHTML = 'تيليغرام';
+  telegramBtn.className = 'bg-blue-500 text-white rounded hover:bg-blue-600 transition';
+  telegramBtn.style.fontSize = '0.5rem';
+  telegramBtn.style.padding = '2px 6px';
 
-        const btnWrapper = document.createElement('div');
-        btnWrapper.className = 'flex justify-center gap-2 mt-4';
-        btnWrapper.appendChild(whatsappBtn);
-        btnWrapper.appendChild(telegramBtn);
-        desc.appendChild(btnWrapper);
+  const btnWrapper = document.createElement('div');
+  btnWrapper.className = 'flex justify-center gap-2 mt-4';
+  btnWrapper.appendChild(whatsappBtn);
+  btnWrapper.appendChild(telegramBtn);
+  desc.appendChild(btnWrapper);
+}
 
-        card.appendChild(desc);
+card.appendChild(desc);
 
         detailsBtn.addEventListener('click', () => {
           const isHidden = desc.classList.toggle('hidden');
