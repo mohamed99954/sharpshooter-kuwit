@@ -139,6 +139,11 @@ toggleContactsBtn.textContent = post.show_contacts
 toggleContactsBtn.className = 'bg-indigo-500 text-white px-3 py-1 rounded';
 toggleContactsBtn.onclick = () => toggleShowContacts(post.id, !post.show_contacts);
 actions.appendChild(toggleContactsBtn);
+const editBtn = document.createElement('button');
+editBtn.textContent = '✏ تعديل';
+editBtn.className = 'bg-yellow-500 text-white px-3 py-1 rounded';
+editBtn.onclick = () => editPost(post.id, post.description);
+actions.appendChild(editBtn);
 
         const delBtn = document.createElement('button');
         delBtn.textContent = '🗑 حذف';
